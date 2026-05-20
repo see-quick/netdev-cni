@@ -2,11 +2,11 @@
 
 A learning/reference CNI plugin for Kubernetes demonstrating three progressive network device technologies:
 
-| Layer | Technology | Mode |
-|-------|-----------|------|
-| 1 | SR-IOV (`netdevice`) | VF moved into pod netns |
-| 2 | DPDK (`vfio-pci`) | PCI address written to pod volume |
-| 3 | RoCE / RDMA (`rdma`) | VF + soft-RoCE (`rdma_rxe`) |
+| Layer | Technology           | Mode                              |
+|-------|----------------------|-----------------------------------|
+| 1     | SR-IOV (`netdevice`) | VF moved into pod netns           |
+| 2     | DPDK (`vfio-pci`)    | PCI address written to pod volume |
+| 3     | RoCE / RDMA (`rdma`) | VF + soft-RoCE (`rdma_rxe`)       |
 
 On clusters without real SR-IOV hardware (e.g. kind), the agent detects simulation mode and creates **veth pairs** instead of VFs.
 
