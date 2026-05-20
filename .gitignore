@@ -1,0 +1,12 @@
+# Binaries
+/netdev-cni
+/node-agent
+/operator
+*.test
+
+# IDE
+.idea/
+.vscode/
+
+# Go
+vendor/

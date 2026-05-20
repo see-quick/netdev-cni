@@ -2,12 +2,16 @@
 package simulation_test
 
 import (
+	"os/exec"
 	"testing"
 
 	"github.com/netdev-cni/netdev-cni/pkg/simulation"
 )
 
 func TestCreateSimulatedVFs(t *testing.T) {
+	if _, err := exec.LookPath("ip"); err != nil {
+		t.Skip("ip command not available (requires Linux/root)")
+	}
 	backend := simulation.NewVethBackend("testsim")
 	vfs, err := backend.CreateVFs(2)
 	if err != nil {

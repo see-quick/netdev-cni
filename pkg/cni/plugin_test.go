@@ -1,3 +1,5 @@
+//go:build linux
+
 // Copyright netdev-cni authors. Apache 2.0 License.
 package cni_test
 
