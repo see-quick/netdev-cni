@@ -1,5 +1,8 @@
 # netdev-cni
 
+> [!NOTE] 
+> This project is for learning purposes only. It is not production-ready and should not be used in real environments.
+
 A learning/reference CNI plugin for Kubernetes demonstrating three progressive network device technologies:
 
 | Layer | Technology           | Mode                              |
