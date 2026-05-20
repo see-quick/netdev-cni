@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	netattachv1 "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/apis/k8s.cni.cncf.io/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -20,6 +21,10 @@ type SriovNetworkReconciler struct {
 }
 
 func (r *SriovNetworkReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	// Register NAD type with the scheme so the client can handle it.
+	if err := netattachv1.AddToScheme(mgr.GetScheme()); err != nil {
+		return err
+	}
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.SriovNetwork{}).
 		Complete(r)
@@ -38,19 +43,36 @@ func (r *SriovNetworkReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		return ctrl.Result{}, fmt.Errorf("build NAD config: %w", err)
 	}
 
-	// Store NAD config as an annotation on the SriovNetwork until the Multus NAD
-	// CRD is available in the cluster (Task 11 adds the full NAD reconciliation).
-	if network.Annotations == nil {
-		network.Annotations = map[string]string{}
+	nad := &netattachv1.NetworkAttachmentDefinition{}
+	err = r.Get(ctx, client.ObjectKey{
+		Name:      network.Name,
+		Namespace: network.Spec.NetworkNamespace,
+	}, nad)
+
+	if errors.IsNotFound(err) {
+		nad = &netattachv1.NetworkAttachmentDefinition{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      network.Name,
+				Namespace: network.Spec.NetworkNamespace,
+				Labels:    map[string]string{"netdev.io/managed-by": "netdev-cni"},
+			},
+			Spec: netattachv1.NetworkAttachmentDefinitionSpec{Config: nadConfig},
+		}
+		log.Info("creating NetworkAttachmentDefinition", "name", network.Name)
+		return ctrl.Result{}, r.Create(ctx, nad)
 	}
-	existing, notFound := network.Annotations["netdev.io/nad-config"], errors.IsNotFound(nil)
-	_ = notFound
-	if existing == nadConfig {
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// Skip NADs owned by something else.
+	if v, ok := nad.Labels["netdev.io/managed-by"]; !ok || v != "netdev-cni" {
+		log.Info("NAD exists with different owner, skipping", "name", network.Name)
 		return ctrl.Result{}, nil
 	}
-	network.Annotations["netdev.io/nad-config"] = nadConfig
-	log.Info("updated NAD config annotation", "network", network.Name)
-	return ctrl.Result{}, r.Update(ctx, network)
+
+	nad.Spec.Config = nadConfig
+	return ctrl.Result{}, r.Update(ctx, nad)
 }
 
 type nadCNIConfig struct {
@@ -79,9 +101,4 @@ func buildNADConfig(network *v1alpha1.SriovNetwork) (string, error) {
 		return "", err
 	}
 	return string(b), nil
-}
-
-// nadMeta is used when creating NAD objects (added in Task 11 with Multus dep).
-type nadMeta struct {
-	metav1.ObjectMeta
 }
