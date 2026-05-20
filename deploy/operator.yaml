@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: netdev-cni-operator
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: netdev-cni-operator
+rules:
+  - apiGroups: ["netdev.io"]
+    resources: ["sriovnetworknodepolicies", "sriovnetworks", "sriovnetworknodestates"]
+    verbs: ["*"]
+  - apiGroups: ["netdev.io"]
+    resources: ["sriovnetworknodepolicies/status", "sriovnetworks/status", "sriovnetworknodestates/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["k8s.cni.cncf.io"]
+    resources: ["network-attachment-definitions"]
+    verbs: ["*"]
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: netdev-cni-operator
+subjects:
+  - kind: ServiceAccount
+    name: netdev-cni-operator
+    namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: netdev-cni-operator
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netdev-cni-operator
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: netdev-cni-operator
+  template:
+    metadata:
+      labels:
+        app: netdev-cni-operator
+    spec:
+      serviceAccountName: netdev-cni-operator
+      containers:
+        - name: operator
+          image: netdev-cni/operator:latest
+          imagePullPolicy: Never

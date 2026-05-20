@@ -1,0 +1,17 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+  - role: worker
+    extraMounts:
+      - hostPath: /dev
+        containerPath: /dev
+      - hostPath: /lib/modules
+        containerPath: /lib/modules
+        readOnly: true
+    kubeadmConfigPatches:
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            cni-bin-dir: "/opt/cni/bin"
