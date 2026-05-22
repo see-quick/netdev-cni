@@ -41,14 +41,14 @@ On clusters without real SR-IOV hardware (e.g. kind), the agent detects simulati
 ## Quick Start (kind simulation)
 
 ```bash
-# 1. Build images
-make build
+# 1. Build container images
+make docker-build
 
 # 2. Create kind cluster
 kind create cluster --config deploy/kind/cluster.yaml
 
 # 3. Load images
-kind load docker-image netdev-cni/cni-plugin:latest netdev-cni/node-agent:latest netdev-cni/operator:latest
+kind load docker-image localhost/netdev-cni/node-agent:latest localhost/netdev-cni/operator:latest localhost/netdev-cni/cni-plugin:latest
 
 # 4. Install CRDs and Multus
 kubectl apply -f deploy/crds/

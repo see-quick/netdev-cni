@@ -53,5 +53,5 @@ spec:
       serviceAccountName: netdev-cni-operator
       containers:
         - name: operator
-          image: netdev-cni/operator:latest
-          imagePullPolicy: Never
+          image: localhost/netdev-cni/operator:latest
+          imagePullPolicy: IfNotPresent

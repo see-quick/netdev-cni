@@ -1,0 +1,47 @@
+apiVersion: netdev.io/v1alpha1
+kind: SriovNetworkNodePolicy
+metadata:
+  name: sim-policy
+  namespace: kube-system
+spec:
+  nodeSelector:
+    kubernetes.io/os: linux
+  numVfs: 4
+  nicSelector:
+    pfNames:
+      - eth0
+  deviceType: netdevice
+---
+apiVersion: netdev.io/v1alpha1
+kind: SriovNetwork
+metadata:
+  name: sriov-net
+  namespace: kube-system
+spec:
+  networkNamespace: default
+  resourceName: netdev.io/sriov_vf
+  ipam: '{"type": "host-local", "subnet": "10.56.0.0/24"}'
+---
+apiVersion: netdev.io/v1alpha1
+kind: SriovNetwork
+metadata:
+  name: dpdk-net
+  namespace: kube-system
+spec:
+  networkNamespace: default
+  resourceName: netdev.io/sriov_vf
+  ipam: '{"type": "host-local", "subnet": "10.56.1.0/24"}'
+  capabilities:
+    dpdk: true
+---
+apiVersion: netdev.io/v1alpha1
+kind: SriovNetwork
+metadata:
+  name: roce-net
+  namespace: kube-system
+spec:
+  networkNamespace: default
+  resourceName: netdev.io/sriov_vf
+  ipam: '{"type": "host-local", "subnet": "10.56.2.0/24"}'
+  capabilities:
+    roce: true
