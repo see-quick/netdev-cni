@@ -8,9 +8,9 @@ IMG_CNI        ?= netdev-cni/cni-plugin:latest
 all: generate build test
 
 build:
-	go build -o bin/cni-plugin ./cmd/cni-plugin/
-	go build -o bin/operator   ./cmd/operator/
-	go build -o bin/node-agent ./cmd/node-agent/
+	GOOS=linux GOARCH=amd64 go build -o bin/cni-plugin ./cmd/cni-plugin/
+	GOOS=linux GOARCH=amd64 go build -o bin/operator   ./cmd/operator/
+	GOOS=linux GOARCH=amd64 go build -o bin/node-agent ./cmd/node-agent/
 
 test:
 	go test ./... -v -count=1
