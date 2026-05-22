@@ -67,14 +67,14 @@ kubectl exec test-layer1 -- ip link show net1
 
 ## Packages
 
-| Package | Purpose |
-|---------|---------|
+| Package             | Purpose                                                                      |
+|---------------------|------------------------------------------------------------------------------|
 | `pkg/apis/v1alpha1` | CRD types: `SriovNetworkNodePolicy`, `SriovNetwork`, `SriovNetworkNodeState` |
-| `pkg/simulation` | Veth-pair simulation backend for kind |
-| `pkg/agent` | VF pool, Unix socket server, IPC protocol |
-| `pkg/netns` | Move interfaces into pod network namespaces |
-| `pkg/cni` | CNI ADD/DEL/CHECK handlers (Linux only) |
-| `pkg/controllers` | Operator reconcilers |
+| `pkg/simulation`    | Veth-pair simulation backend for kind                                        |
+| `pkg/agent`         | VF pool, Unix socket server, IPC protocol                                    |
+| `pkg/netns`         | Move interfaces into pod network namespaces                                  |
+| `pkg/cni`           | CNI ADD/DEL/CHECK handlers (Linux only)                                      |
+| `pkg/controllers`   | Operator reconcilers                                                         |
 
 ## Testing
 
